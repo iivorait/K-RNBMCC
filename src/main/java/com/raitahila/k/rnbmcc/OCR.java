@@ -1,8 +1,16 @@
 package com.raitahila.k.rnbmcc;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.lept;
 import static org.bytedeco.javacpp.lept.pixDestroy;
@@ -37,5 +45,21 @@ public class OCR {
         pixDestroy(image);
         
         return string;
+    }
+    
+    public String ocrBase64(String imageBase64) throws Exception {
+        byte[] data = Base64.decodeBase64(imageBase64);
+        File image;
+        try {
+            image = File.createTempFile("img", ".temp");
+        } catch (IOException ex) {
+            throw new Exception("Could not open temporary file");
+        }
+        try (OutputStream stream = new FileOutputStream(image)) {
+            stream.write(data);
+        } catch (IOException ex) {
+            throw new Exception("Could not write temporary file");
+        }
+        return this.ocrFile(image.getAbsolutePath());
     }
 }

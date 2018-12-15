@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,11 @@ public class HelloController {
 
     @Autowired
     private OCR ocr;
+    @Autowired
+    private DocumentRepository repository;
+    @Autowired
+    private NaiveBayes naivebayes;
+    
     
     @GetMapping("/")
     public String index() {
@@ -36,12 +43,29 @@ public class HelloController {
     }
     
     @PostMapping("/ocrtest2")
-    String ocrtest2(@RequestBody Document newDocument) throws FileNotFoundException, IOException, Exception {
-        byte[] data = Base64.decodeBase64(newDocument.getImage());
-        File image = File.createTempFile("img", ".temp");
-        try (OutputStream stream = new FileOutputStream(image)) {
-            stream.write(data);
-        }
-        return ocr.ocrFile(image.getAbsolutePath());
+    String ocrtest2(@RequestBody Document newDocument) throws Exception {
+        return ocr.ocrBase64(newDocument.getImage());
+    }
+    
+    @GetMapping("/documents")
+    List<Document> all() {
+        return repository.findAll();
+    }
+    
+    @PostMapping("/documents")
+    Document newDocument(@RequestBody Document newDocument) {
+        return repository.save(newDocument);
+    }
+    
+    @PostMapping("/train")
+    String train(@RequestBody Document newDocument) throws Exception {
+        String rawText = ocr.ocrBase64(newDocument.getImage());
+        naivebayes.train(newDocument.getLabel(), rawText);
+        return "done";
+    }
+    
+    @GetMapping("/test")
+    List<Document> test() {
+        return naivebayes.koe();
     }
 }
