@@ -21,10 +21,51 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
+<!--         https://mvnrepository.com/artifact/org.bytedeco/javacpp 
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacpp</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+         https://mvnrepository.com/artifact/org.bytedeco.javacpp-presets/leptonica 
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>leptonica</artifactId>
+            <version>1.76.0-1.4.3</version>
+             <classifier>${os.classifier}</classifier>
+        </dependency>
+         https://mvnrepository.com/artifact/org.bytedeco.javacpp-presets/tesseract 
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>tesseract</artifactId>
+            <version>4.0.0-rc2-1.4.3</version>
+             <classifier>${os.classifier}</classifier>
+        </dependency>-->
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>tesseract</artifactId>
+            <version>3.04.01-1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>tesseract</artifactId>
+            <version>3.04.01-1.2</version>
+            <classifier>${os.classifier}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>leptonica</artifactId>
+            <version>1.73-1.2</version>
+            <classifier>${os.classifier}</classifier>
+        </dependency>
+
     </dependencies>
     
     <packaging>jar</packaging>
     <properties>
+        <!-- Valid classifiers for javacpp-presets are android-arm, linux-ppc64le, linux-x86, macosx-x86_64 and windows-x86. -->
+        <os.classifier>linux-x86</os.classifier>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
