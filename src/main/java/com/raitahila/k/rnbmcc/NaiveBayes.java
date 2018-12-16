@@ -1,11 +1,14 @@
 package com.raitahila.k.rnbmcc;
 
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.lept;
 import static org.bytedeco.javacpp.lept.pixDestroy;
@@ -27,7 +30,8 @@ public class NaiveBayes {
         String[] rawWords = rawInput.split("\\s+"); //Split on whitespace
         ArrayList<String> words = new ArrayList<>(Arrays.asList(rawWords));
         words.removeIf(x -> x.length() < 3);
-        return words;
+        return words.stream().map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
     
     public void train(String label, String rawText) {
@@ -51,12 +55,14 @@ public class NaiveBayes {
         
         for (String label : counts.keySet()) {
             double prob = this.calculateProbability(words, label, counts);
+            System.out.println("Probability of class " + label + ": " + prob);
             if(prob > highestProbability) {
                 highestProbability = prob;
                 highestClass = label;
             }
         }
         
+        System.out.println("------------------------");
         return highestClass;
     }
     
@@ -70,17 +76,18 @@ public class NaiveBayes {
     }
     
     public double calculateProbability(List<String> words, String label, HashMap<String, Long> counts) {
-        double numerator = 1.0 / counts.size();
-        double denominator = 1.0;
+        //Using logarithms to avoid underflows and overflows
+        double numerator = log(1.0 / counts.size());
+        double denominator = log(1.0);
         
         //Calculate numerator
         //P(prior) * P(word1 | class) * P(word2 | class) * ...
         for (String word : words) {
             Document doc = repository.findByLabelAndWord(label, word);
             if(doc != null) {
-                numerator *= ((double) doc.getCount()) / counts.get(label);
+                numerator += log(((double) doc.getCount()) / counts.get(label));
             } else {
-                numerator *= 0.000001;
+                numerator += log(0.000001);
             }
         }
 
@@ -95,10 +102,10 @@ public class NaiveBayes {
                     wordProb += 1.0/counts.size() * doc.getCount() / counts.get(key);
                 }
             }
-            denominator *= wordProb;
+            denominator += log(wordProb);
         }
         
-        return numerator / denominator;
+        return exp(numerator - denominator);
     }
     
     public List<Document> koe () {

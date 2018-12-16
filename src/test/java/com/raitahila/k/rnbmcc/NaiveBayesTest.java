@@ -64,12 +64,13 @@ public class NaiveBayesTest {
      */
     @Test
     public void testFilterWords() {
-        String rawInput = "a ab abc abcd abcde  abcdef";
+        String rawInput = "a ab abc abcd abcde  abcdef ABCDISO";
         NaiveBayes instance = new NaiveBayes();
         ArrayList<String> result = instance.filterWords(rawInput);
         assertTrue(result.contains("abcde"));
         assertTrue(result.contains("abc"));
         assertFalse(result.contains("ab"));
+        assertTrue(result.contains("abcdiso"));
     }
 
     @Test

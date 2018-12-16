@@ -73,9 +73,4 @@ public class HelloController {
         return naivebayes.classify(rawText);
     }
     
-    @GetMapping("/test")
-    List<Document> test() {
-        List<Document> koe = naivebayes.koe();
-        return koe;
-    }
 }
