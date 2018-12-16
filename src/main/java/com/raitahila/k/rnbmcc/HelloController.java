@@ -6,7 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,11 +64,18 @@ public class HelloController {
     String train(@RequestBody Document newDocument) throws Exception {
         String rawText = ocr.ocrBase64(newDocument.getImage());
         naivebayes.train(newDocument.getLabel(), rawText);
-        return "done";
+        return "done: " + Arrays.toString(naivebayes.filterWords(rawText).toArray());
+    }
+    
+    @PostMapping("/classify")
+    String classify(@RequestBody Document newDocument) throws Exception {
+        String rawText = ocr.ocrBase64(newDocument.getImage());
+        return naivebayes.classify(rawText);
     }
     
     @GetMapping("/test")
     List<Document> test() {
-        return naivebayes.koe();
+        List<Document> koe = naivebayes.koe();
+        return koe;
     }
 }

@@ -12,18 +12,18 @@ class Document {
 
     private @Id @GeneratedValue Long id;
     private String label;
-    private int count;
+    private Long count;
     private String word;
     private @Transient String image;
 
-    public Document(String label, int count, String word, String image) {
+    public Document(String label, Long count, String word, String image) {
         this.label = label;
         this.count = count;
         this.word = word;
         this.image = image;
     }
 
-    public Document(String label, int count, String word) {
+    public Document(String label, Long count, String word) {
         this.label = label;
         this.count = count;
         this.word = word;
@@ -33,6 +33,12 @@ class Document {
         this.label = label;
         this.image = image;
     }
+
+    public Document(String label, Long count) { //For findTotalWordCounts()
+        this.label = label;
+        this.count = count;
+    }
+    
     
     public void incrementCount() {
         count++;
