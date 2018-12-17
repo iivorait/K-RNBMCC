@@ -1,25 +1,15 @@
 package com.raitahila.k.rnbmcc;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-public class HelloController {
+public class MainController {
 
     @Autowired
     private OCR ocr;
@@ -31,44 +21,40 @@ public class HelloController {
     
     @GetMapping("/")
     public String index() {
-            return "Greetings from Spring Boot!";
+            return "Hello!";
     }
     
-    @GetMapping("/ocrtest")
-    public String ocrtest() {
-        
-        try {
-            return ocr.ocrFile("testfiles/long-test.jpg");
-        } catch (Exception ex) {
-            return ex.getMessage();
-        }
-        
-    }
-    
-    @PostMapping("/ocrtest2")
-    String ocrtest2(@RequestBody Document newDocument) throws Exception {
-        return ocr.ocrBase64(newDocument.getImage());
-    }
-    
+    /**
+     * Get all trained word, count and label combinations
+     */
     @GetMapping("/documents")
     List<Document> all() {
         return repository.findAll();
     }
     
+    /**
+     * Train without OCR, for fast initialization
+     * @param newDocument containing word, count and label
+     */
     @PostMapping("/documents")
     Document newDocument(@RequestBody Document newDocument) {
         return repository.save(newDocument);
     }
     
+    /**
+     * Train with OCR
+     * @param newDocument containing label and image (Base64 encoded)
+     * @return 
+     */
     @PostMapping("/train")
-    String train(@RequestBody Document newDocument) throws Exception {
+    TrainingResult train(@RequestBody Document newDocument) throws Exception {
         String rawText = ocr.ocrBase64(newDocument.getImage());
         naivebayes.train(newDocument.getLabel(), rawText);
-        return "done: " + Arrays.toString(naivebayes.filterWords(rawText).toArray());
+        return new TrainingResult(newDocument.getLabel(), naivebayes.filterWords(rawText));
     }
     
     @PostMapping("/classify")
-    String classify(@RequestBody Document newDocument) throws Exception {
+    ClassificationResult classify(@RequestBody Document newDocument) throws Exception {
         String rawText = ocr.ocrBase64(newDocument.getImage());
         return naivebayes.classify(rawText);
     }

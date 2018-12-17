@@ -6,26 +6,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.lept;
-import static org.bytedeco.javacpp.lept.pixDestroy;
-import static org.bytedeco.javacpp.lept.pixRead;
-import org.bytedeco.javacpp.tesseract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service("NB")
 @EnableAutoConfiguration
 public class NaiveBayes {
     
-    @Autowired( required = true )
+    @Autowired
     private DocumentRepository repository;
     
+    /**
+     * Filter raw OCR'ed text into a list of words. Minimum length 3 chars
+     * @param rawInput
+     * @return 
+     */
     public ArrayList<String> filterWords(String rawInput) {
         String[] rawWords = rawInput.split("\\s+"); //Split on whitespace
         ArrayList<String> words = new ArrayList<>(Arrays.asList(rawWords));
@@ -34,6 +31,11 @@ public class NaiveBayes {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
     
+    /**
+     * Add new document to the corpus
+     * @param label
+     * @param rawText 
+     */
     public void train(String label, String rawText) {
         for (String word : filterWords(rawText)) {
             Document doc = repository.findByLabelAndWord(label, word);
@@ -44,28 +46,34 @@ public class NaiveBayes {
             }
             repository.save(doc);
         }
-        //TODO: testi metodille
     }
     
-    public String classify(String rawText) {
+    /**
+     * Classify a document
+     * @param rawText
+     * @return 
+     */
+    public ClassificationResult classify(String rawText) {
         ArrayList<String> words = this.filterWords(rawText);
         HashMap<String, Long> counts = this.preprocessTotalCounts();
         double highestProbability = 0.0;
-        String highestClass = "";
+        ClassificationResult result = new ClassificationResult();
         
         for (String label : counts.keySet()) {
             double prob = this.calculateProbability(words, label, counts);
-            System.out.println("Probability of class " + label + ": " + prob);
+            result.addProbablity(label, prob);
             if(prob > highestProbability) {
                 highestProbability = prob;
-                highestClass = label;
+                result.setLabel(label);
             }
         }
-        
-        System.out.println("------------------------");
-        return highestClass;
+        return result;
     }
     
+    /**
+     * Calculate the total amount of words in each label
+     * @return 
+     */
     public HashMap<String, Long> preprocessTotalCounts() {
         List<Document> rawTotals = repository.findTotalWordCounts();
         HashMap<String, Long> counts = new HashMap<>();
@@ -75,6 +83,13 @@ public class NaiveBayes {
         return counts;
     }
     
+    /**
+     * Calculate the probability that the document belongs to a given class
+     * @param words from filterWords()
+     * @param label probability that the document belongs to this class
+     * @param counts from preprocessTotalCounts()
+     * @return Not a percentage but a value that can be compared to other classes
+     */
     public double calculateProbability(List<String> words, String label, HashMap<String, Long> counts) {
         //Using logarithms to avoid underflows and overflows
         double numerator = log(1.0 / counts.size());
@@ -108,7 +123,4 @@ public class NaiveBayes {
         return exp(numerator - denominator);
     }
     
-    public List<Document> koe () {
-        return repository.findTotalWordCounts();
-    }
 }

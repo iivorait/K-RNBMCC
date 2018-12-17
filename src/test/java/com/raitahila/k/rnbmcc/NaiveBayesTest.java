@@ -148,6 +148,20 @@ public class NaiveBayesTest {
         this.repository.save(new Document("saft", 6L, "annetusta"));
         this.repository.save(new Document("palaute", 6L, "palaute"));
         
-        assertEquals("palaute", inst.classify("annetusta palaute sparde"));
+        ClassificationResult result = inst.classify("annetusta palaute sparde");
+        assertEquals("palaute", result.getLabel());
+    }
+
+    /**
+     * Test of train method, of class NaiveBayes.
+     */
+    @Test
+    public void testTrain() {
+        assertNull(repository.findByLabelAndWord("lasku", "viitenumero"));
+        String rawText = "viitenumero 202020 mainitse viitenumero maksaessasi";
+        inst.train("lasku", rawText);
+        assertTrue(repository.findByLabelAndWord("lasku", "viitenumero").getCount() == 2);
+        assertTrue(repository.findByLabelAndWord("lasku", "mainitse").getCount() == 1);
+        assertNull(repository.findByLabelAndWord("saft", "viitenumero"));
     }
 }

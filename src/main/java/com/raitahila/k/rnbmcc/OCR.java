@@ -1,15 +1,9 @@
 package com.raitahila.k.rnbmcc;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.lept;
@@ -20,6 +14,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OCR {
+    
+    /**
+     * Get the text using OCR from a file
+     * @param path path to file
+     * @return OCR'ed text
+     * @throws Exception 
+     */
     public String ocrFile(String path) throws Exception {
         //Modified from sample 
         //https://github.com/bytedeco/javacpp-presets/tree/master/tesseract
@@ -47,6 +48,13 @@ public class OCR {
         return string;
     }
     
+    /**
+     * Get the text using OCR from a Base64 encoded string. Stores the image
+     * into a temporary file for ocrFile method
+     * @param imageBase64
+     * @return OCR'ed text
+     * @throws Exception 
+     */
     public String ocrBase64(String imageBase64) throws Exception {
         byte[] data = Base64.decodeBase64(imageBase64);
         File image;

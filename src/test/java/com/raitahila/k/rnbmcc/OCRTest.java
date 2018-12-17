@@ -48,4 +48,5 @@ public class OCRTest {
         assertTrue(result.contains("Moi! Ääkköskoe"));
     }
     
+    //Base64 test in controller's test
 }
