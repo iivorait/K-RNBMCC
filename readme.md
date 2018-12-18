@@ -57,7 +57,9 @@ Requirements for running and building:
 1. Adjust the "<os.classifier>linux-x86</os.classifier>" in pom.xml to match
    your platform (options listed in pom.xml)
 2. Build the software; mvn package
-3. Execute the package from the directory where "tessdata" resides (the root of
+3. (Optionally rename src/main/resources/application.properties_dist to
+  application.properties and change database password among other settings)
+4. Execute the package from the directory where "tessdata" resides (the root of
    the project);
    sudo java -jar target/K-RNBMCC-1.0-SNAPSHOT.jar --server.port=80
 
